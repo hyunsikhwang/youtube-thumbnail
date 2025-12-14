@@ -75,140 +75,158 @@ st.markdown(
     """
     <style>
       :root{
-        --bg:#fbfbff;
-        --card:#ffffff;
-        --text:#0f172a;
-        --muted:#64748b;
-        --stroke: rgba(15,23,42,.10);
-        --shadow: 0 18px 50px rgba(2,6,23,.10);
-        --shadow2: 0 10px 30px rgba(2,6,23,.08);
-        --glow1: rgba(99,102,241,.28);
-        --glow2: rgba(236,72,153,.20);
+        --bg-dark: #09090b;
+        --card-bg: rgba(24, 24, 27, 0.6);
+        --border: rgba(255, 255, 255, 0.08);
+        --accent-glow: rgba(99, 102, 241, 0.4);
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
       }
 
-      /* 전체 배경 + 가운데 폭 고정 */
+      /* Global Reset & Dark Theme */
       .stApp{
-        background:
-          radial-gradient(1200px 600px at 12% 0%, var(--glow1), transparent 60%),
-          radial-gradient(900px 520px at 90% 8%, var(--glow2), transparent 55%),
-          var(--bg);
+        background-color: var(--bg-dark);
+        background-image:
+            radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 80% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 40%);
+        color: var(--text-primary);
       }
 
-      /* Streamlit 기본 padding 정리 */
+      /* Streamlit overrides */
       [data-testid="stAppViewContainer"] .main{
-        padding-top: 36px;
-        padding-bottom: 48px;
+        padding-top: 40px;
+        padding-bottom: 60px;
       }
+      h1, h2, h3, p, div, span { color: var(--text-primary); }
+      .stCaption { color: var(--text-secondary) !important; }
 
-      /* 중앙 폭(카드가 너무 넓게 퍼지는 문제 해결) */
+      /* Layout Wrapper */
       .wrap{
-        max-width: 920px;
+        max-width: 720px;
         margin: 0 auto;
       }
 
       .title{
-        font-size: 40px;
-        font-weight: 850;
-        letter-spacing: -0.03em;
-        color: var(--text);
-        line-height: 1.08;
-        margin: 0 0 10px 0;
+        font-size: 42px;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 10px;
+        letter-spacing: -0.02em;
       }
       .sub{
-        color: var(--muted);
-        font-size: 15px;
-        margin: 0 0 22px 0;
+        color: var(--text-secondary);
+        font-size: 16px;
+        margin-bottom: 36px;
+        font-weight: 400;
       }
 
       .card{
-        background: rgba(255,255,255,.78);
-        border: 1px solid var(--stroke);
-        border-radius: 22px;
-        padding: 20px;
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(10px);
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 32px;
+        backdrop-filter: blur(20px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
       }
 
       .section-title{
-        font-size: 13px;
+        color: var(--text-secondary);
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
         font-weight: 700;
-        color: var(--muted);
-        margin: 2px 0 8px 2px;
+        margin-bottom: 8px;
+        margin-left: 4px;
       }
 
-      /* 입력창 높이/라운드 통일 */
+      /* Input Fields */
       div[data-baseweb="input"] > div{
-        border-radius: 16px !important;
-        border: 1px solid rgba(15,23,42,.12) !important;
-        background: rgba(255,255,255,.90) !important;
-        box-shadow: var(--shadow2);
+        background-color: rgba(0,0,0,0.3) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 14px !important;
       }
       div[data-baseweb="input"] input{
-        padding: 14px 14px !important;
-        font-size: 16px !important;
+        color: #fff !important;
+        font-weight: 500;
       }
 
-      /* 버튼 높이 통일 */
+      /* Primary Button */
       .stButton > button{
-        height: 48px !important;
-        border-radius: 16px !important;
-        font-weight: 800 !important;
+        background: linear-gradient(90deg, #6366f1, #ec4899) !important;
+        border: none !important;
+        color: white !important;
+        font-weight: 700 !important;
+        height: 50px !important;
+        border-radius: 14px !important;
+        box-shadow: 0 10px 25px -5px var(--accent-glow) !important;
+        transition: transform 0.2s, box-shadow 0.2s !important;
+      }
+      .stButton > button:hover{
+        transform: translateY(-2px);
+        box-shadow: 0 15px 35px -5px var(--accent-glow) !important;
       }
 
-      /* 구분선 */
+      /* Divider */
       .divider{
         height: 1px;
-        background: linear-gradient(90deg, rgba(99,102,241,.65), rgba(236,72,153,.65));
-        border-radius: 999px;
-        margin: 16px 0 18px 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        margin: 24px 0;
       }
 
-      /* pill */
+      /* Pill Badge */
       .pill{
         display:inline-flex;
         align-items:center;
         justify-content:center;
-        height: 48px;
-        padding: 0 14px;
+        height: 50px;
+        padding: 0 20px;
         border-radius: 999px;
-        border: 1px solid rgba(15,23,42,.10);
-        background: rgba(255,255,255,.70);
-        color: var(--muted);
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.05);
+        color: var(--text-secondary);
         font-size: 13px;
-        font-weight: 700;
-        box-shadow: var(--shadow2);
+        font-weight: 600;
+        backdrop-filter: blur(10px);
         white-space: nowrap;
       }
 
-      /* X 공유 버튼 */
+      /* X Share Button */
       .xbtn{
         display:flex;
         align-items:center;
         justify-content:center;
         gap:10px;
-        padding: 14px 14px;
-        border-radius: 18px;
-        border: 1px solid rgba(15,23,42,.12);
-        background: #0b0f19;
+        padding: 16px;
+        border-radius: 16px;
+        background: #000;
+        border: 1px solid #333;
         color: #fff !important;
         text-decoration:none !important;
-        font-weight: 900;
+        font-weight: 700;
         width: 100%;
-        box-shadow: 0 16px 35px rgba(11,15,25,.22);
-        transition: transform .08s ease, box-shadow .2s ease;
+        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        transition: all 0.2s ease;
       }
-      .xbtn:hover{ transform: translateY(-1px); box-shadow: 0 22px 45px rgba(11,15,25,.28); }
+      .xbtn:hover{
+        border-color: #555;
+        transform: translateY(-2px);
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+      }
       .xicon{ width: 16px; height: 16px; }
 
       .hint{
-        color: var(--muted);
-        font-size: 12.5px;
-        margin-top: 10px;
+        color: #52525b;
+        font-size: 12px;
+        margin-top: 12px;
+        text-align: center;
       }
 
       /* 이미지 라운드 */
       img{
-        border-radius: 18px !important;
+        border-radius: 16px !important;
+        border: 1px solid var(--border) !important;
       }
     </style>
     """,
