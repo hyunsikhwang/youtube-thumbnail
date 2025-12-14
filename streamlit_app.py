@@ -1,83 +1,157 @@
 import streamlit as st
+import requests
+from urllib.parse import urlparse, parse_qs
 import re
-import urllib.parse
-import requests  # HTTP 요청을 위해 추가된 라이브러리
 
-def extract_video_id(url):
-    """
-    유튜브 URL에서 비디오 ID를 추출합니다.
-    """
-    pattern = r'(?:v=|\/)([0-9A-Za-z_-]{11}).*'
-    match = re.search(pattern, url)
-    if match:
-        return match.group(1)
+st.set_page_config(
+    page_title="YouTube Thumbnail Extractor",
+    page_icon="🎥",
+    layout="centered"
+)
+
+st.title("🎬 YouTube Thumbnail Extractor")
+st.markdown("---")
+
+def extract_video_id(youtube_url):
+    """유튜브 URL에서 비디오 ID를 추출하는 함수"""
+    
+    # 정규식 패턴들
+    patterns = [
+        r'(?:https?://)?(?:www\.)?youtube\.com/watch\?v=([^&]+)',
+        r'(?:https?://)?(?:www\.)?youtube\.com/embed/([^?]+)',
+        r'(?:https?://)?(?:www\.)?youtube\.com/v/([^?]+)',
+        r'(?:https?://)?youtu\.be/([^?]+)',
+        r'(?:https?://)?(?:www\.)?youtube\.com/shorts/([^?]+)'
+    ]
+    
+    for pattern in patterns:
+        match = re.search(pattern, youtube_url)
+        if match:
+            return match.group(1)
+    
+    # URL 파싱 방식으로 시도
+    try:
+        parsed_url = urlparse(youtube_url)
+        if parsed_url.hostname in ['www.youtube.com', 'youtube.com']:
+            return parse_qs(parsed_url.query).get('v', [None])[0]
+        elif parsed_url.hostname == 'youtu.be':
+            return parsed_url.path.strip('/')
+    except:
+        pass
+    
     return None
 
-def get_video_title(url):
-    """
-    YouTube oEmbed API를 사용하여 영상 제목을 가져옵니다.
-    공식적인 방법으로 메타데이터를 조회하므로 안정적입니다.
-    """
-    oembed_url = f"https://www.youtube.com/oembed?url={url}&format=json"
-    try:
-        response = requests.get(oembed_url)
-        if response.status_code == 200:
-            data = response.json()
-            return data.get('title', 'YouTube Video') # 제목이 없으면 기본값 반환
+def get_thumbnail_url(video_id):
+    """비디오 ID로 썸네일 URL을 생성하는 함수"""
+    if not video_id:
+        return None
+    
+    # 최대 품질의 썸네일 URL (1280x720)
+    return f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
+
+def create_twitter_share_url(thumbnail_url, video_url):
+    """X.com 공유 URL 생성"""
+    text = f"Check out this YouTube video thumbnail! 🎥"
+    encoded_text = text.replace(" ", "%20")
+    encoded_url = video_url.replace(":", "%3A").replace("/", "%2F")
+    
+    return f"https://x.com/intent/post?text={encoded_text}&url={encoded_url}"
+
+# 유튜브 URL 입력
+youtube_url = st.text_input(
+    "Enter YouTube URL:",
+    placeholder="https://www.youtube.com/watch?v=..."
+)
+
+if st.button("Extract Thumbnail", type="primary"):
+    if youtube_url:
+        # 비디오 ID 추출
+        video_id = extract_video_id(youtube_url)
+        
+        if video_id:
+            # 썸네일 URL 생성
+            thumbnail_url = get_thumbnail_url(video_id)
+            
+            try:
+                # 썸네일 이미지 표시
+                response = requests.get(thumbnail_url)
+                if response.status_code == 200:
+                    st.success("✅ Thumbnail extracted successfully!")
+                    
+                    # 썸네일 표시
+                    st.image(thumbnail_url, caption="YouTube Thumbnail", use_column_width=True)
+                    
+                    # 다운로드 버튼
+                    st.download_button(
+                        label="📥 Download Thumbnail",
+                        data=response.content,
+                        file_name=f"youtube_thumbnail_{video_id}.jpg",
+                        mime="image/jpeg",
+                        help="Click to download the thumbnail image"
+                    )
+                    
+                    # X.com 공유 버튼
+                    twitter_share_url = create_twitter_share_url(thumbnail_url, youtube_url)
+                    st.markdown("---")
+                    st.markdown("### Share on X (Twitter)")
+                    
+                    # X.com 공유 버튼 (HTML로 구현)
+                    st.markdown(f"""
+                        <a href="{twitter_share_url}" target="_blank" style="text-decoration: none;">
+                            <button style="
+                                background-color: #000000;
+                                color: white;
+                                border: none;
+                                padding: 10px 20px;
+                                border-radius: 5px;
+                                cursor: pointer;
+                                font-size: 16px;
+                                font-weight: bold;
+                                display: inline-flex;
+                                align-items: center;
+                                gap: 8px;
+                            ">
+                                <span>🐦</span>
+                                Share on X
+                            </button>
+                        </a>
+                    """, unsafe_allow_html=True)
+                    
+                    # 썸네일 URL 표시
+                    with st.expander("Show Thumbnail URL"):
+                        st.code(thumbnail_url, language=None)
+                        
+                else:
+                    st.error("❌ Failed to load thumbnail. Please check the URL.")
+                    
+            except Exception as e:
+                st.error(f"❌ Error loading thumbnail: {str(e)}")
         else:
-            return "YouTube Video"
-    except Exception as e:
-        return "YouTube Video"
-
-# --- Streamlit 앱 설정 ---
-st.set_page_config(page_title="YouTube 썸네일 추출기", page_icon="📺")
-
-st.title("📺 YouTube 썸네일 추출기")
-st.markdown("링크를 입력하면 썸네일을 확인하고, **영상 제목 그대로** X(트위터)에 공유할 수 있습니다.")
-
-# 1. 사용자 입력 받기
-video_url = st.text_input("유튜브 동영상 링크를 입력하세요:", placeholder="https://www.youtube.com/watch?v=...")
-
-if video_url:
-    video_id = extract_video_id(video_url)
-
-    if video_id:
-        # 2. 썸네일 URL 생성
-        thumbnail_url = f"https://img.youtube.com/vi/{video_id}/maxresdefault.jpg"
-        
-        # 3. 영상 제목 가져오기 (추가된 기능)
-        with st.spinner("영상 정보를 가져오는 중입니다..."):
-            video_title = get_video_title(video_url)
-
-        st.success("정보 추출 성공!")
-        
-        # 썸네일과 제목 출력
-        st.image(thumbnail_url, caption=f"제목: {video_title}", use_container_width=True)
-        st.subheader(f"🎬 {video_title}")
-
-        # 4. X.com 공유 버튼 생성 (제목 적용)
-        st.divider()
-        st.write("📢 친구들에게 공유하기")
-
-        # 공유할 텍스트에 '영상 제목'을 적용
-        share_text = video_title 
-        
-        # URL 인코딩 (특수문자, 공백 처리)
-        encoded_text = urllib.parse.quote(share_text)
-        encoded_url = urllib.parse.quote(video_url)
-        
-        # X 공유 링크 생성
-        x_share_link = f"https://twitter.com/intent/tweet?text={encoded_text}&url={encoded_url}"
-
-        st.link_button(
-            label=f"X(트위터)에 '{video_title}' 공유하기", 
-            url=x_share_link, 
-            type="primary"
-        )
-
+            st.error("❌ Invalid YouTube URL. Please check the format.")
     else:
-        st.error("올바르지 않은 유튜브 링크입니다.")
-        st.info("지원 형식: https://youtu.be/..., https://youtube.com/watch?v=...")
+        st.warning("⚠️ Please enter a YouTube URL.")
 
-else:
-    st.info("위 입력창에 링크를 입력해주세요.")
+# 사용법 안내
+with st.expander("📖 How to Use"):
+    st.markdown("""
+    1. **Enter YouTube URL**: Copy and paste any YouTube video URL
+    2. **Click Extract**: Press the 'Extract Thumbnail' button
+    3. **View Thumbnail**: The thumbnail will be displayed
+    4. **Download**: Click 'Download Thumbnail' to save the image
+    5. **Share**: Click 'Share on X' to post on X/Twitter
+    
+    **Supported URL formats:**
+    - https://www.youtube.com/watch?v=VIDEO_ID
+    - https://youtu.be/VIDEO_ID
+    - https://www.youtube.com/shorts/VIDEO_ID
+    - https://www.youtube.com/embed/VIDEO_ID
+    """)
+
+# 푸터
+st.markdown("---")
+st.markdown("""
+<div style='text-align: center; color: #888;'>
+    <p>Made with ❤️ using Streamlit</p>
+    <p>Supports all YouTube video formats including Shorts, regular videos, and embedded videos</p>
+</div>
+""", unsafe_allow_html=True)
