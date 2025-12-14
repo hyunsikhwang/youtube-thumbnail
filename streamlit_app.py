@@ -249,4 +249,45 @@ with st.container():
 
     if should_run and youtube_link:
         st.session_state["last_link"] = youtube_link
-        vid = extract_youtube_video_id(_
+        vid = extract_youtube_video_id(youtube_link)
+
+        if not vid:
+            st.error("유튜브 링크에서 video id를 추출하지 못했습니다. 공유 링크 형태를 확인해 주세요.")
+        else:
+            watch_url = canonical_watch_url(vid)
+            title = get_youtube_title_via_oembed(watch_url) or "제목을 가져올 수 없음"
+            thumb_url = best_thumbnail_url(vid)
+
+            st.markdown("")  # breathing room
+            st.subheader("미리보기")
+
+            st.caption("썸네일")
+            st.image(thumb_url, use_container_width=True)
+
+            st.caption("제목 (X 공유 텍스트)")
+            st.write(title)
+
+            intent = x_share_intent_url(text=title, url=watch_url)
+            st.markdown(
+                f"""
+                <a class="xbtn" href="{intent}" target="_blank" rel="noopener noreferrer">
+                  <svg class="xicon" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+                    <path d="M18.244 2H21l-6.53 7.47L22.5 22h-6.79l-5.32-6.93L4.3 22H1.5l7.05-8.08L1.5 2h6.96l4.8 6.29L18.244 2Zm-1.19 18h1.88L7.9 3.9H5.88L17.055 20Z"/>
+                  </svg>
+                  X.com 에 공유하기
+                </a>
+                <div class="hint">공유 텍스트는 유튜브 제목 그대로이며, 링크는 자동으로 첨부됩니다.</div>
+                """,
+                unsafe_allow_html=True,
+            )
+    elif not youtube_link:
+        st.info("유튜브 공유 링크를 입력해 주세요.")
+
+    st.markdown("</div>", unsafe_allow_html=True)  # card end
+
+st.markdown(
+    '<div class="hint">참고: 제목은 YouTube oEmbed로 가져옵니다(API Key 불필요). 네트워크 환경에 따라 제목 로딩이 실패할 수 있습니다.</div>',
+    unsafe_allow_html=True,
+)
+
+st.markdown("</div>", unsafe_allow_html=True)  # wrap end
