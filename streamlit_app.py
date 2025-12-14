@@ -75,20 +75,20 @@ st.markdown(
     """
     <style>
       :root{
-        --bg-dark: #09090b;
-        --card-bg: rgba(24, 24, 27, 0.6);
-        --border: rgba(255, 255, 255, 0.08);
-        --accent-glow: rgba(99, 102, 241, 0.4);
-        --text-primary: #f8fafc;
-        --text-secondary: #94a3b8;
+        --bg-light: #f8faff;
+        --card-bg: rgba(255, 255, 255, 0.75);
+        --border: rgba(0, 0, 0, 0.04);
+        --accent-glow: rgba(99, 102, 241, 0.25);
+        --text-primary: #0f172a;
+        --text-secondary: #64748b;
       }
 
-      /* Global Reset & Dark Theme */
+      /* Global Reset & Light Theme */
       .stApp{
-        background-color: var(--bg-dark);
+        background-color: var(--bg-light);
         background-image:
-            radial-gradient(circle at 20% 20%, rgba(236, 72, 153, 0.15) 0%, transparent 40%),
-            radial-gradient(circle at 80% 10%, rgba(99, 102, 241, 0.15) 0%, transparent 40%);
+            radial-gradient(circle at 10% 10%, rgba(236, 72, 153, 0.10) 0%, transparent 40%),
+            radial-gradient(circle at 90% 20%, rgba(99, 102, 241, 0.10) 0%, transparent 40%);
         color: var(--text-primary);
       }
 
@@ -109,7 +109,7 @@ st.markdown(
       .title{
         font-size: 42px;
         font-weight: 800;
-        background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+        background: linear-gradient(120deg, #0f172a 0%, #6366f1 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         margin-bottom: 10px;
@@ -128,7 +128,7 @@ st.markdown(
         border-radius: 24px;
         padding: 32px;
         backdrop-filter: blur(20px);
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.06);
       }
 
       .section-title{
@@ -143,12 +143,12 @@ st.markdown(
 
       /* Input Fields */
       div[data-baseweb="input"] > div{
-        background-color: rgba(0,0,0,0.3) !important;
-        border: 1px solid var(--border) !important;
+        background-color: #ffffff !important;
+        border: 1px solid rgba(0,0,0,0.08) !important;
         border-radius: 14px !important;
       }
       div[data-baseweb="input"] input{
-        color: #fff !important;
+        color: var(--text-primary) !important;
         font-weight: 500;
       }
 
@@ -171,7 +171,7 @@ st.markdown(
       /* Divider */
       .divider{
         height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        background: linear-gradient(90deg, transparent, rgba(0,0,0,0.06), transparent);
         margin: 24px 0;
       }
 
@@ -184,7 +184,7 @@ st.markdown(
         padding: 0 20px;
         border-radius: 999px;
         border: 1px solid var(--border);
-        background: rgba(255,255,255,0.05);
+        background: rgba(255,255,255,0.6);
         color: var(--text-secondary);
         font-size: 13px;
         font-weight: 600;
@@ -201,23 +201,23 @@ st.markdown(
         padding: 16px;
         border-radius: 16px;
         background: #000;
-        border: 1px solid #333;
+        border: 1px solid #000;
         color: #fff !important;
         text-decoration:none !important;
         font-weight: 700;
         width: 100%;
-        box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        box-shadow: 0 10px 25px -10px rgba(0,0,0,0.3);
         transition: all 0.2s ease;
       }
       .xbtn:hover{
-        border-color: #555;
+        background: #222;
         transform: translateY(-2px);
-        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.7);
+        box-shadow: 0 20px 40px -10px rgba(0,0,0,0.2);
       }
       .xicon{ width: 16px; height: 16px; }
 
       .hint{
-        color: #52525b;
+        color: #94a3b8;
         font-size: 12px;
         margin-top: 12px;
         text-align: center;
@@ -226,7 +226,7 @@ st.markdown(
       /* 이미지 라운드 */
       img{
         border-radius: 16px !important;
-        border: 1px solid var(--border) !important;
+        border: 1px solid rgba(0,0,0,0.05) !important;
       }
     </style>
     """,
